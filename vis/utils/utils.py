@@ -295,7 +295,10 @@ def draw_text(img, text, position=(10, 10), font='FreeSans.ttf', font_size=14, c
     # Don't mutate original image
     img = Image.fromarray(img)
     draw = ImageDraw.Draw(img)
-    draw.text(position, text, fill=color, font=font)
+    if (len(img.getbands())<3):
+        draw.text(position, text, fill=255, font=font)
+    else:
+        draw.text(position, text, fill=color, font=font)
     return np.asarray(img)
 
 

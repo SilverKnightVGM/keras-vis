@@ -2,6 +2,7 @@ from __future__ import absolute_import
 import pprint
 import numpy as np
 from .utils import utils
+import cv2
 
 try:
     import imageio as imageio
@@ -48,7 +49,7 @@ class Print(OptimizerCallback):
 class GifGenerator(OptimizerCallback):
     """Callback to construct gif of optimized image.
     """
-    def __init__(self, path, input_range=(0, 255)):
+    def __init__(self, path, input_range=(0, 255), scaling=1):
         """
         Args:
             path: The file path to save gif.
@@ -57,6 +58,7 @@ class GifGenerator(OptimizerCallback):
                 to the given range. (Default value=(0, 255))
         """
         self.input_range = input_range
+        self.scaling = scaling
         _check_imageio()
         if not path.endswith('.gif'):
             path += '.gif'
@@ -69,7 +71,12 @@ class GifGenerator(OptimizerCallback):
                 isinstance(self.input_range[0], int) and \
                 isinstance(self.input_range[1], int):
             img = np.clip(img, self.input_range[0], self.input_range[1]).astype('uint8')
-        img = utils.draw_text(img, "Step {}".format(i + 1))
+        
+        img = cv2.resize(img, (img.shape[1]*self.scaling, img.shape[0]*self.scaling))
+        if (len(img.shape)<3):
+            img = utils.draw_text(img, "Step {}".format(i + 1), color=255)
+        else:
+            img = utils.draw_text(img, "Step {}".format(i + 1))
         self.writer.append_data(img)
 
     def on_end(self):
