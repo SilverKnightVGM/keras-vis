@@ -3,8 +3,13 @@ from __future__ import absolute_import
 import numpy as np
 from scipy.ndimage.interpolation import zoom
 
-from keras.layers.convolutional import _Conv
-from keras.layers.pooling import _Pooling1D, _Pooling2D, _Pooling3D
+try:
+    from keras.layers.convolutional import _Conv
+    from keras.layers.pooling import _Pooling1D, _Pooling2D, _Pooling3D
+except:
+    from keras.layers.convolutional import Conv2D
+    from keras.layers.pooling import MaxPooling1D, MaxPooling2D, AveragePooling1D, AveragePooling2D 
+
 from keras.layers.wrappers import Wrapper
 from keras import backend as K
 
@@ -31,6 +36,9 @@ def _find_penultimate_layer(model, layer_idx, penultimate_layer_idx):
             if isinstance(layer, Wrapper):
                 layer = layer.layer
             if isinstance(layer, (_Conv, _Pooling1D, _Pooling2D, _Pooling3D)):
+                penultimate_layer_idx = idx
+                break
+            if isinstance(layer, (Conv2D, MaxPooling1D, MaxPooling2D, AveragePooling1D, AveragePooling2D)):
                 penultimate_layer_idx = idx
                 break
 
@@ -192,6 +200,7 @@ def visualize_cam_with_losses(input_tensor, losses, seed_input, penultimate_laye
 
     # Figure out the zoom factor.
     zoom_factor = [i / (j * 1.0) for i, j in iter(zip(input_dims, output_dims))]
+    # print("zoom:{}, input_dims:{}, output_dims{}".format(zoom_factor, input_dims, output_dims))
     heatmap = zoom(heatmap, zoom_factor)
     return utils.normalize(heatmap)
 
