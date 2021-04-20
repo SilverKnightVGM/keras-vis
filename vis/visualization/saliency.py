@@ -183,6 +183,12 @@ def visualize_cam_with_losses(input_tensor, losses, seed_input, penultimate_laye
     other_axis = np.delete(np.arange(len(grads.shape)), channel_idx)
     weights = np.mean(grads, axis=tuple(other_axis))
 
+    visualize_cam_with_losses.penultimate_output_value = penultimate_output_value
+    visualize_cam_with_losses.grads = grads
+    visualize_cam_with_losses.channel_idx = channel_idx
+    visualize_cam_with_losses.other_axis = other_axis
+    visualize_cam_with_losses.weights = weights
+
     # Generate heatmap by computing weight * output over feature maps
     output_dims = utils.get_img_shape(penultimate_output_value)[2:]
     heatmap = np.zeros(shape=output_dims, dtype=K.floatx())
